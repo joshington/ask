@@ -1,9 +1,11 @@
 
 use reqwest::Client;
 use dotenv::dotenv;
-use serde::{Deserialize, Serialize};
-use std::io::{self, stdin};
-use std::env;
+use serde::{Deserialize, Serialize}; 
+//provides macros for serializing and deserializing data, converting Rust structs to JSON
+//and vise versa
+use std::io::stdin;  //used to read userinput from the terminal
+use std::env; //used to access envt variables
 
 //adding structs for OpenAI communication
 //we define some structures that will help us manage the data we send to and receive 
@@ -14,8 +16,9 @@ use std::env;
 
 #[derive(Serialize)]
 struct OpenAIChatRequest {
-    model: String,
+    model: String,  //specifies the OPenAI model to use
     messages: Vec<Message>,
+    //list of Message structs representing the coversation history
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -26,13 +29,20 @@ struct Message {
 
 #[derive(Deserialize)]
 struct OpenAIChatResponse {
-    choices: Vec<ChatChoice>,
+    choices: Vec<ChatChoice>, //list og ChatChoice structs containing the AIs response
 }
+//the one above represents the response from the OpenAI API.
+
+
 
 #[derive(Serialize, Deserialize)]
 struct Conversation {
-    messages: Vec<Message>,
+    messages: Vec<Message>, //alist of Message structs
 }
+//represents the entire conversation history
+
+
+
 
 #[derive(Deserialize)]
 struct ChatChoice {
@@ -110,7 +120,9 @@ async fn ask_openai(client: &Client,conversation: &mut Conversation) -> Result<S
             role: "assistant".to_string(),
             content: choice.message.content.clone(),
         });
-        Ok(choice.message.content)
+        Ok(choice.message.content.clone()) //we need to clone the String value to avoid moving it
+        //out of the reference.
+        //this creates a new copy of the String and returns it, avoiding the move error
     } else {
         Err("No response from AI".to_string())
     }
